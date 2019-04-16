@@ -1,0 +1,2 @@
+import './lodash'
+import './vuetify'
