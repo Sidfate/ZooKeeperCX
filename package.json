@@ -14,6 +14,7 @@
   "dependencies": {
     "core-js": "^2.6.5",
     "lodash": "^4.17.11",
+    "node-zookeeper-client-async": "^1.0.0",
     "vue": "^2.6.10",
     "vuetify": "^1.5.5",
     "vuex": "^3.0.1"
