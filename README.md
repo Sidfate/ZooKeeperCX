@@ -1,29 +1,12 @@
 # zkcx
 
-## Project setup
-```
-yarn install
-```
+A **cross-platform** **succinct** **smart** Zookeeper GUI Client.
 
-### Compiles and hot-reloads for development
-```
-yarn run serve
-```
+## Feature
 
-### Compiles and minifies for production
-```
-yarn run build
-```
+* Zookeeper connections management.
+* Asynchronous operation in loading zookeeper node data and Batch operation suitable.
+* ...
 
-### Run your tests
-```
-yarn run test
-```
-
-### Lints and fixes files
-```
-yarn run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## License
+MIT
