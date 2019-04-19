@@ -1,13 +1,9 @@
 <template>
-  <v-app id="inspire" style="background-image: linear-gradient(-225deg, #2CD8D5 0%, #C5C1FF 56%, #FFBAC3 100%);">
+  <v-app id="inspire" dark>
+    <zk-drawer></zk-drawer>
+    <zk-toolbar></zk-toolbar>
     <v-content>
-      <v-container fluid fill-height>
-        <v-layout align-center justify-center>
-          <v-flex xs12 sm8 md3>
-            <hello-world></hello-world>
-          </v-flex>
-        </v-layout>
-      </v-container>
+      <zk-content></zk-content>
     </v-content>
     <v-snackbar
             v-model="snackbar.status"
@@ -26,21 +22,22 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld'
+import { ZkContent, ZkDrawer, ZkToolbar } from './components'
 import { mapState } from 'vuex'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    ZkContent, ZkDrawer, ZkToolbar
   },
   computed: {
     ...mapState(['snackbar'])
   },
-  data () {
-    return {
-      //
-    }
-  }
+  data: () => ({
+    drawer: true,
+    drawerRight: true,
+    right: null,
+    left: null
+  })
 }
 </script>
