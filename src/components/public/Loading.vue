@@ -1,5 +1,7 @@
 <template>
-  <v-layout align-center justify-center row fill-height v-if="loading">
+  <v-layout align-center justify-center row fill-height v-if="loading"
+            style="width: 100%;position: absolute;background: rgba(0,0,0,.38);"
+  >
     <v-progress-circular
             indeterminate
             color="primary"

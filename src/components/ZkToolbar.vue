@@ -3,17 +3,17 @@
     <!--<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>-->
     <!--<v-toolbar-title>ZKCX</v-toolbar-title>-->
 
-    <v-menu :nudge-width="100">
+    <v-menu offset-y>
       <template v-slot:activator="{ on }">
-        <v-toolbar-title v-on="on" style="cursor: pointer">
-          <span>{{ connectionName }}</span>
-          <v-icon dark>arrow_drop_down</v-icon>
+        <v-toolbar-title v-on="connectionList.length > 0 ? on:null" style="cursor: pointer" @click="showConnections">
+          <span>{{ connection['status'] ? connection.name : 'None' }}</span>
+          <v-icon>arrow_drop_down</v-icon>
         </v-toolbar-title>
       </template>
 
       <v-list>
         <v-list-tile
-                v-for="item in connections"
+                v-for="item in connectionList"
                 :key="item.name"
                 @click="connect(item)"
         >
@@ -26,61 +26,71 @@
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
-        <v-btn icon v-on="on" @click="openConnectDialog">
+        <v-btn icon v-on="on" @click="openDialog('connectDialog')">
           <v-icon>settings_input_component</v-icon>
         </v-btn>
       </template>
-      <span>New Connection</span>
+      <span>Connection</span>
     </v-tooltip>
 
-    <v-btn icon>
-      <v-icon>settings</v-icon>
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" @click="openDialog('settingDialog')">
+          <v-icon>settings</v-icon>
+        </v-btn>
+      </template>
+      <span>Setting</span>
+    </v-tooltip>
+
+    <v-btn icon @click="cleanStore()">
+      <v-icon>clear_all</v-icon>
     </v-btn>
 
-    <!--<v-btn icon>-->
-      <!--<v-icon>more_vert</v-icon>-->
-    <!--</v-btn>-->
-
     <connect-dialog ref="connectDialog"></connect-dialog>
+    <setting-dialog ref="settingDialog"></setting-dialog>
   </v-toolbar>
 </template>
 
 <script>
-  import { ConnectDialog } from './toolbar'
+  import * as ZK from '@/utils/zk'
+  import { ConnectDialog, SettingDialog } from './toolbar'
+  import { cleanStore } from '@/utils/localStore'
+  import { mapState } from 'vuex'
 
   export default {
     components: {
-      ConnectDialog
+      ConnectDialog,
+      SettingDialog
+    },
+    computed: {
+      ...mapState(['connection', 'connectionList'])
     },
     data() {
       return {
-        connections: [
-          {
-            name: 'dev',
-            link: 'http://1.com'
-          },
-          {
-            name: 'test',
-            link: 'http://2.com'
-          },
-          {
-            name: 'stage',
-            link: 'http://3.com'
-          }
-        ],
-        connectionName: 'None'
+
       }
     },
     methods: {
-      openConnectDialog () {
-        this.$refs['connectDialog'].openDialog()
+      openDialog (ref) {
+        this.$refs[ref].openDialog()
       },
-      async connect (item) {
-        this.$store.commit('toggleConnectLoading')
-        this.connectionName = item.name
+      connect (item) {
+        ZK.connect(item.server).then((client) => {
+          item.handler = client
+          this.$store.dispatch('connect', item)
+        }).catch(() => {
+          this.$store.dispatch('sendMsg', { msg: 'Connection failed', isError: true})
+        })
+      },
+      cleanStore() {
+        cleanStore()
+      },
+      showConnections () {
+        if(this.connectionList.length > 0) {
+          return true
+        }
 
-        // const client = this.$zk.createAsyncClient('test.cdh.ecarx.local:2181')
-        // await client.connectAsync()
+        this.openDialog('connectDialog')
       }
     }
   }
