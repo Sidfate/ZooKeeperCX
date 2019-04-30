@@ -10,12 +10,21 @@ Created by vue+electron.See my development framework template :point_right: [Cli
 
 [Link](https://github.com/Sidfate/zkcx/releases)
 
-## Feature
+### Feature
 
 * ZooKeeper connections management.
 * Asynchronous operation in loading zookeeper node data and Batch operation suitable.
-* More lighter UI and simpler operation.
+* More lighter main interface and simpler operation.
+* UI with light and dark theme.
 * ...
+
+### Snapshots
+
+![](https://sidfate.oss-cn-hangzhou.aliyuncs.com/client-x/3f56935147e5af46.png)
+
+![](https://sidfate.oss-cn-hangzhou.aliyuncs.com/client-x/b1674c7a6b7b96ef.png)
+
+![](https://sidfate.oss-cn-hangzhou.aliyuncs.com/client-x/b7fa2980268bca27.png)
 
 ### Development
 
