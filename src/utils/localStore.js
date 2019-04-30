@@ -54,6 +54,11 @@ export function deleteConnection(name) {
   setConnectionMap(map)
 }
 
+export function clearConnections() {
+  setConnectionList([])
+  setConnectionMap({})
+}
+
 export function getConnection(key) {
   const map = getConnectionMap()
   return _.get(map, key, null)

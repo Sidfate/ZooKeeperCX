@@ -14,6 +14,8 @@ let win
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes(['app'], { secure: true })
 function createWindow () {
+  let pack = require("../package.json")
+  global.version = pack.version
   // Create the browser window.
   win = new BrowserWindow({ width: 800, height: 600 })
 

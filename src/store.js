@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getConnectionList, getConnectionMap, getSetting, setSetting, addConnection, deleteConnection } from '@/utils/localStore'
+import { getConnectionList, getConnectionMap, getSetting, setSetting, addConnection, deleteConnection, clearConnections } from '@/utils/localStore'
 
 Vue.use(Vuex)
 
@@ -11,6 +11,14 @@ export default new Vuex.Store({
       status: false,
       isError: false,
       color: 'info'
+    },
+    modal: {
+      status: false,
+      title: 'Notice',
+      description: '',
+      sureBtn: 'Next',
+      cancelBtn: 'Cancel',
+      next: null
     },
     connection: {
       loading: false,
@@ -61,11 +69,21 @@ export default new Vuex.Store({
     },
     updateNode (state, node) {
       state.node = node
-    }
+    },
+    openModal (state, modal) {
+      for(let key in modal) {
+        state.modal[key] = modal[key]
+      }
+      state.modal.status = true
+      console.log(state.modal)
+    },
   },
   actions: {
+    showModal (context, modal) {
+      context.commit('openModal', modal)
+    },
     sendMsg (context, { msg, isError }) {
-      context.commit('sendMsg', { status, msg, isError })
+      context.commit('sendMsg', { msg, isError })
     },
     closeMsg (context) {
       context.commit('closeMsg')
@@ -86,6 +104,14 @@ export default new Vuex.Store({
       context.commit('updateConnections', {
         connectionList: getConnectionList(),
         connectionMap: getConnectionMap()
+      })
+      context.commit('cleanUpConnection')
+    },
+    clearConnections(context) {
+      clearConnections()
+      context.commit('updateConnections', {
+        connectionList: [],
+        connectionMap: {}
       })
       context.commit('cleanUpConnection')
     },

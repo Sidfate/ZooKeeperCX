@@ -13,15 +13,15 @@
               subheader
               two-line
       >
-        <v-subheader>General</v-subheader>
+        <v-subheader>About</v-subheader>
         <v-list-tile>
           <v-list-tile-content>
-            <v-list-tile-title>Theme</v-list-tile-title>
-            <v-radio-group v-model="theme" row @change="changeTheme">
-              <v-radio label="Dark" value="dark"></v-radio>
-              <v-radio label="Light" value="light"></v-radio>
-            </v-radio-group>
+            <v-list-tile-title>ZookeeperCX</v-list-tile-title>
+            <v-list-tile-sub-title>{{ 'Version: ' + version }} </v-list-tile-sub-title>
           </v-list-tile-content>
+          <v-btn color="primary" @click="goForDownload">
+            Check for update
+          </v-btn>
         </v-list-tile>
       </v-list>
 
@@ -29,40 +29,79 @@
 
       <v-list
               subheader
-              three-line
+              two-line
       >
         <v-subheader>General</v-subheader>
-        <v-list-tile @click="">
-          <v-list-tile-action>
-            <v-checkbox
-                    v-model="notifications"
-            ></v-checkbox>
-          </v-list-tile-action>
-
-          <v-list-tile-content @click.prevent="notifications = !notifications">
-            <v-list-tile-title>Notifications</v-list-tile-title>
-            <v-list-tile-sub-title>Notify me about updates to apps or games that I downloaded</v-list-tile-sub-title>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>Theme</v-list-tile-title>
+            <v-list-tile-sub-title>Set the app theme.</v-list-tile-sub-title>
           </v-list-tile-content>
+          <v-radio-group v-model="theme" row @change="changeTheme" style="flex: 0 0 auto;">
+            <v-radio label="Dark" value="dark"></v-radio>
+            <v-radio label="Light" value="light"></v-radio>
+          </v-radio-group>
+        </v-list-tile>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>Cache</v-list-tile-title>
+            <v-list-tile-sub-title>Remove the whole cache.</v-list-tile-sub-title>
+          </v-list-tile-content>
+          <v-btn color="error" @click="clearCache">
+            Clear cache
+          </v-btn>
         </v-list-tile>
       </v-list>
+
+      <!--<v-divider></v-divider>-->
+
+      <!--<v-list-->
+              <!--subheader-->
+              <!--three-line-->
+      <!--&gt;-->
+        <!--<v-subheader>Storage</v-subheader>-->
+        <!--<v-list-tile @click="">-->
+          <!--<v-list-tile-action>-->
+            <!--<v-checkbox-->
+                    <!--v-model="connections"-->
+            <!--&gt;</v-checkbox>-->
+          <!--</v-list-tile-action>-->
+
+          <!--<v-list-tile-content @click.prevent="connections = !connections">-->
+            <!--<v-list-tile-title>Connections</v-list-tile-title>-->
+            <!--<v-list-tile-sub-title>Remove all your connections.</v-list-tile-sub-title>-->
+          <!--</v-list-tile-content>-->
+        <!--</v-list-tile>-->
+        <!--<v-btn color="info" :disabled="cacheSwitch">-->
+          <!--Clear cache-->
+        <!--</v-btn>-->
+      <!--</v-list>-->
     </v-card>
   </v-dialog>
 </template>
 
 <script>
   import { mapState } from 'vuex'
+  import { shell, remote } from 'electron'
 
   export default {
     name: "SettingDialog",
     computed: {
-      ...mapState(['setting'])
+      ...mapState(['setting']),
+      cacheSwitch () {
+        return !this.connections
+      },
+      version () {
+        return remote.getGlobal('version')
+      },
+      downloadLink () {
+        return 'https://github.com/Sidfate/ZooKeeperCX/releases'
+      }
     },
     data () {
       return {
         dialog: false,
-        notifications: false,
-        sound: true,
-        widgets: false,
+        connections: false,
         theme: ''
       }
     },
@@ -75,6 +114,19 @@
       },
       changeTheme () {
         this.$store.dispatch('changeTheme', this.theme)
+      },
+      clearCache () {
+        this.$store.dispatch('showModal', {
+          title: 'Warning',
+          description: 'Are you sure to clear all cache include connections?',
+          sureBtn: 'Sure',
+          next: () => {
+            this.$store.dispatch('clearConnections')
+          }
+        })
+      },
+      goForDownload () {
+        shell.openExternal(this.downloadLink)
       }
     }
   }
