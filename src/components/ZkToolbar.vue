@@ -1,8 +1,5 @@
 <template>
   <v-toolbar app fixed clipped-left>
-    <!--<v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>-->
-    <!--<v-toolbar-title>ZKCX</v-toolbar-title>-->
-
     <v-menu offset-y>
       <template v-slot:activator="{ on }">
         <v-toolbar-title v-on="connectionList.length > 0 ? on:null" style="cursor: pointer" @click="showConnections">
@@ -41,10 +38,6 @@
       </template>
       <span>Setting</span>
     </v-tooltip>
-
-    <v-btn icon @click="cleanStore()">
-      <v-icon>clear_all</v-icon>
-    </v-btn>
 
     <connect-dialog ref="connectDialog"></connect-dialog>
     <setting-dialog ref="settingDialog"></setting-dialog>
