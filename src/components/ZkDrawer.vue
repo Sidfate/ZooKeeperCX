@@ -6,7 +6,7 @@
           app
           style="overflow-x: auto"
   >
-    <loading :loading="loading"></loading>
+    <cx-loading :loading="loading"></cx-loading>
     <v-treeview
             :active.sync="active"
             :open.sync="open"
@@ -14,7 +14,6 @@
             item-key="path"
             :items="items"
             open-on-click
-            @click="selectNode"
             activatable
             return-object
             active-class="primary--text"
@@ -23,14 +22,10 @@
 </template>
 
 <script>
-  import { Loading } from './public'
   import { mapState } from 'vuex'
   import { getChildren, getData } from '@/utils/zk'
 
   export default {
-    components: {
-      Loading
-    },
     computed: {
       ...mapState(['connection'])
     },
@@ -39,6 +34,9 @@
         handler: function(newer, older) {
           if(!older && newer) {
             this.refreshChildren('/')
+          }
+          if(newer === null) {
+            this.items = []
           }
         }
       },

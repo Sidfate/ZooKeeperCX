@@ -7,7 +7,9 @@
               ripple
       >
         <v-list-tile-content>
-          <v-list-tile-sub-title>No connection.</v-list-tile-sub-title>
+          <v-list-tile-sub-title>
+            <cx-empty-tip message="No connection."></cx-empty-tip>
+          </v-list-tile-sub-title>
         </v-list-tile-content>
       </v-list-tile>
     </template>
@@ -17,6 +19,9 @@
               avatar
               ripple
       >
+        <v-list-tile-avatar>
+          <vue-letter-avatar :name="item.name" size="40" :rounded=true />
+        </v-list-tile-avatar>
         <v-list-tile-content>
           <v-list-tile-title>{{ item.name }}</v-list-tile-title>
           <v-list-tile-sub-title>{{ item.server }}</v-list-tile-sub-title>
@@ -41,9 +46,9 @@
               <!--<v-list-tile @click="doConnect">-->
                 <!--<v-list-tile-title>Connect</v-list-tile-title>-->
               <!--</v-list-tile>-->
-              <v-list-tile @click="editConnection">
-                <v-list-tile-title>Edit Connection</v-list-tile-title>
-              </v-list-tile>
+              <!--<v-list-tile @click="editConnection">-->
+                <!--<v-list-tile-title>Edit Connection</v-list-tile-title>-->
+              <!--</v-list-tile>-->
               <v-list-tile @click="deleteConnection(item.name)">
                 <v-list-tile-title>Delete Connection</v-list-tile-title>
               </v-list-tile>

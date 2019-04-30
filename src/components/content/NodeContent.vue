@@ -14,18 +14,26 @@
           </h3>
         </v-card-text>
         <v-divider></v-divider>
+        <cx-loading :loading="loading"></cx-loading>
         <v-container
                 grid-list-md
                 tag="v-card-text"
                 text-xs-left
                 wrap
         >
-          <template v-for="(item, key) in content" >
-            <v-layout row wrap :key="key">
-              <v-flex tag="strong" xs4 class="node-content-text">{{ key+':' }}</v-flex>
-              <v-flex xs8 class="node-content-text">{{ item }}</v-flex>
-            </v-layout>
-          </template>
+          <div v-if="!loading">
+            <template v-if="JSON.stringify(content) !== '{}'">
+              <template v-for="(item, key) in content" >
+                <v-layout row wrap :key="key">
+                  <v-flex tag="strong" xs4 class="node-content-text">{{ key+':' }}</v-flex>
+                  <v-flex xs8 class="node-content-text">{{ item }}</v-flex>
+                </v-layout>
+              </template>
+            </template>
+            <template v-else>
+              <cx-empty-tip message="No data."></cx-empty-tip>
+            </template>
+          </div>
         </v-container>
       </v-card>
     </v-scroll-y-transition>
@@ -33,6 +41,7 @@
             :active.sync="bottomNav"
             :color="color"
             :value="true"
+            dark
             absolute
     >
       <v-btn flat @click="showData">
@@ -40,17 +49,21 @@
         <v-icon>storage</v-icon>
       </v-btn>
 
-      <v-btn flat @click="showAcl">
+      <v-btn flat @click="showStats">
         <span>Stats</span>
         <v-icon>message</v-icon>
       </v-btn>
       <v-divider vertical></v-divider>
+      <v-btn flat @click="refreshData">
+        <span>Refresh</span>
+        <v-icon>refresh</v-icon>
+      </v-btn>
       <v-btn flat>
         <span>Edit</span>
         <v-icon>edit</v-icon>
       </v-btn>
 
-      <v-btn flat>
+      <v-btn flat @click="deleteNode">
         <span>Delete</span>
         <v-icon>delete</v-icon>
       </v-btn>
@@ -78,16 +91,19 @@
     },
     data() {
       return {
+        loading: false,
         nodeData: {},
         stats: {},
         content: {},
-        bottomNav: 0
+        bottomNav: 0,
+        contentType: 'data'
       }
     },
     watch: {
       '$store.state.node.path': {
         handler: function (newer, older) {
           if (older !== newer) {
+            this.contentType = 'data'
             this.fetchData()
           }
         }
@@ -98,6 +114,7 @@
     },
     methods: {
       async fetchData() {
+        this.loading = true
         console.log('getData')
         console.log(this.node.path)
         let { data, stats } = await getData(this.connection.handler, this.node.path)
@@ -108,18 +125,36 @@
           this.nodeData = Object.assign({}, JSON.parse(data))
         }
         if(stats) {
-          console.log(stats)
           stats = this._formatStats(stats)
           this.stats = Object.assign({}, stats)
         }
 
-        this.showData()
+        if(this.contentType === 'stats') {
+          this.showStats()
+        }else {
+          this.showData()
+        }
+        this.loading = false
       },
       showData () {
+        this.contentType = 'data'
         this.content = Object.assign({}, this.nodeData)
       },
-      showAcl () {
+      showStats () {
+        this.contentType = 'stats'
         this.content = Object.assign({}, this.stats)
+      },
+      async refreshData () {
+        await this.fetchData()
+      },
+      deleteNode () {
+        this.$store.dispatch('showModal', {
+          description: `Are you sure to do delete the node?`,
+          sureBtn: 'Sure',
+          next: () => {
+            console.log('deleted')
+          }
+        })
       },
       _formatStats (stats) {
         let stats$1 = {}

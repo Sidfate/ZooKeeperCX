@@ -9,7 +9,7 @@
         </v-btn>
       </v-toolbar>
       <v-layout row warp class="connection-card-content">
-        <v-flex xs4>
+        <v-flex xs5>
           <connection-list></connection-list>
         </v-flex>
         <v-divider vertical></v-divider>
@@ -17,21 +17,19 @@
           <v-subheader>New Connection</v-subheader>
           <connection-form></connection-form>
         </v-flex>
-        <loading :loading="loading"></loading>
+        <cx-loading :loading="loading"></cx-loading>
       </v-layout>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-  import Loading from "@/components/public/Loading"
   import ConnectionList from './ConnectionList'
   import ConnectionForm from './ConnectionForm'
 
   export default {
     name: "ConnectDialog",
     components: {
-      Loading,
       ConnectionList,
       ConnectionForm
     },
