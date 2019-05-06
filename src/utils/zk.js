@@ -1,5 +1,5 @@
 
-const zkClient = require('node-zookeeper-client');
+const zkClient = require('node-zookeeper-client')
 
 function connect(server) {
   return new Promise((resolve, reject) => {
@@ -70,13 +70,13 @@ function getAcl(client, path) {
   })
 }
 
-function createNode(client, path, data, acl) {
+function createNode(client, path, data, acl, createModel) {
   return new Promise((resolve, reject) => {
     if(!client) {
       return
     }
 
-    client.getACL(path, function (error, acls) {
+    client.create(path, data, acl, createModel, function (error, acls) {
       if (error) {
         reject(error)
       }
@@ -90,5 +90,6 @@ export {
   connect,
   getChildren,
   getData,
-  getAcl
+  getAcl,
+  createNode
 }

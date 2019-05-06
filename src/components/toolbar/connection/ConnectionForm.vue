@@ -53,7 +53,7 @@
         valid: true,
         form: {
           name: '',
-          server: 'test.cdh.ecarx.local:2181'
+          server: ''
         },
         rules: {
           name: [

@@ -90,6 +90,10 @@
         ZK.connect(item.server).then((client) => {
           item.handler = client
           this.$store.dispatch('connect', item)
+
+          client.on('disconnected', function () {
+            this.$store.dispatch('closeConnection')
+          })
         }).catch(() => {
           this.$store.dispatch('sendMsg', {msg: 'Connection failed', isError: true})
         })

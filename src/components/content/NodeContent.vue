@@ -26,7 +26,7 @@
             <template v-if="JSON.stringify(content) !== '{}'">
               <template v-for="(item, key, index) in content" >
                 <v-layout row wrap :key="key">
-                  <v-flex tag="strong" xs4 class="node-content-text">{{ key+':' }}</v-flex>
+                  <v-flex tag="strong" xs4 class="node-content-text">{{ key }}</v-flex>
                   <v-flex xs8 class="node-content-text">{{ item }}</v-flex>
                 </v-layout>
                 <v-divider v-if="index !== Object.keys(content).length - 1" :key="key"></v-divider>
@@ -58,7 +58,7 @@
 
       <v-btn flat @click="showAcl">
         <span>Acl</span>
-        <v-icon>mdi-account-key-outline</v-icon>
+        <v-icon>mdi-key</v-icon>
       </v-btn>
     </v-bottom-nav>
     <v-speed-dial
