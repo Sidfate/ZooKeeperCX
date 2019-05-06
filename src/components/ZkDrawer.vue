@@ -6,6 +6,18 @@
           app
           style="overflow-x: auto"
   >
+    <!-- 暂时不把连接的操作放在drawer中 -->
+    <!--<v-toolbar dense class="transparent">-->
+      <!--<v-tooltip bottom>-->
+        <!--<template v-slot:activator="{ on }">-->
+          <!--<v-btn icon v-on="on" small>-->
+            <!--<v-icon>add</v-icon>-->
+          <!--</v-btn>-->
+        <!--</template>-->
+        <!--<span>Create Node</span>-->
+      <!--</v-tooltip>-->
+    <!--</v-toolbar>-->
+    <!--<v-divider></v-divider>-->
     <cx-loading :loading="loading"></cx-loading>
     <v-treeview
             :active.sync="active"

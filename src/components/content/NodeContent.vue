@@ -20,14 +20,16 @@
                 tag="v-card-text"
                 text-xs-left
                 wrap
+                v-if="!loading"
         >
           <div v-if="!loading">
             <template v-if="JSON.stringify(content) !== '{}'">
-              <template v-for="(item, key) in content" >
+              <template v-for="(item, key, index) in content" >
                 <v-layout row wrap :key="key">
                   <v-flex tag="strong" xs4 class="node-content-text">{{ key+':' }}</v-flex>
                   <v-flex xs8 class="node-content-text">{{ item }}</v-flex>
                 </v-layout>
+                <v-divider v-if="index !== Object.keys(content).length - 1" :key="key"></v-divider>
               </template>
             </template>
             <template v-else>
@@ -53,28 +55,73 @@
         <span>Stats</span>
         <v-icon>message</v-icon>
       </v-btn>
-      <v-divider vertical></v-divider>
-      <v-btn flat @click="refreshData">
-        <span>Refresh</span>
-        <v-icon>refresh</v-icon>
-      </v-btn>
-      <v-btn flat>
-        <span>Edit</span>
-        <v-icon>edit</v-icon>
-      </v-btn>
 
-      <v-btn flat @click="deleteNode">
-        <span>Delete</span>
-        <v-icon>delete</v-icon>
+      <v-btn flat @click="showAcl">
+        <span>Acl</span>
+        <v-icon>mdi-account-key-outline</v-icon>
       </v-btn>
     </v-bottom-nav>
+    <v-speed-dial
+            v-model="fab"
+            bottom
+            right
+            direction="top"
+            transition="slide-y-reverse-transition"
+    >
+      <template v-slot:activator>
+        <v-btn
+                v-model="fab"
+                color="blue darken-2"
+                fab
+                dark
+        >
+          <v-icon>mdi-menu</v-icon>
+          <v-icon>close</v-icon>
+        </v-btn>
+      </template>
+      <v-btn
+              fab
+              dark
+              small
+              color="indigo"
+              @click="fetchData"
+      >
+        <v-icon>refresh</v-icon>
+      </v-btn>
+      <v-btn
+              fab
+              dark
+              small
+              color="green"
+      >
+        <v-icon>edit</v-icon>
+      </v-btn>
+      <v-btn
+              fab
+              dark
+              small
+              color="red"
+              @click="deleteNode"
+      >
+        <v-icon>delete</v-icon>
+      </v-btn>
+    </v-speed-dial>
   </v-layout>
 </template>
 
 <script>
   import { mapState } from 'vuex'
-  import { getData } from '@/utils/zk'
+  import { getData, getAcl } from '@/utils/zk'
   import { dateFormat } from '@/utils/date'
+
+  const PERMISSIONS = {
+    READ : 1,
+    WRITE : 2,
+    CREATE : 4,
+    DELETE : 8,
+    ADMIN : 16,
+    ALL : 31
+  };
 
   export default {
     name: "NodeContent",
@@ -85,16 +132,17 @@
           case 0: return 'blue-grey'
           case 1: return 'teal'
           case 2: return 'brown'
-          case 3: return 'indigo'
         }
       }
     },
     data() {
       return {
+        fab: false,
         loading: false,
         nodeData: {},
         stats: {},
         content: {},
+        acls: {},
         bottomNav: 0,
         contentType: 'data'
       }
@@ -129,7 +177,9 @@
           this.stats = Object.assign({}, stats)
         }
 
-        if(this.contentType === 'stats') {
+        if(this.contentType === 'acls') {
+          this.showAcl()
+        } else if(this.contentType === 'stats') {
           this.showStats()
         }else {
           this.showData()
@@ -144,13 +194,24 @@
         this.contentType = 'stats'
         this.content = Object.assign({}, this.stats)
       },
-      async refreshData () {
-        await this.fetchData()
+      async showAcl () {
+        let acls = await getAcl(this.connection.handler, this.node.path)
+        let acl = acls && acls.length > 0 ? acls[0] : null
+        if(acl) {
+          acl.permission = this.$tool.findKey(PERMISSIONS, function (o) {
+            return o === acl.permission
+          })
+          acl.id = acl.id.scheme + ", " + acl.id.id
+        }
+
+        this.contentType = 'acls'
+        this.content = Object.assign({}, acl ? acl : {})
       },
       deleteNode () {
         this.$store.dispatch('showModal', {
           description: `Are you sure to do delete the node?`,
           sureBtn: 'Sure',
+          title: 'Warning',
           next: () => {
             console.log('deleted')
           }
@@ -188,5 +249,14 @@
 <style scoped>
   .node-content-text {
     word-wrap:break-word;
+  }
+  .v-speed-dial {
+    position: absolute;
+    bottom: 66px;
+    right: 10px;
+  }
+
+  .v-btn--floating {
+    position: relative;
   }
 </style>

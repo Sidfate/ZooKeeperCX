@@ -63,9 +63,13 @@ export default new Vuex.Store({
     cleanUpConnection (state) {
       state.connection.name = ''
       state.connection.server = ''
-      state.status = false
-      state.loading = false
-      state.handler = null
+      state.connection.status = false
+      state.connection.loading = false
+      state.connection.handler = null
+    },
+    cleanUpNode (state) {
+      state.node.status = false
+      state.node.path = ''
     },
     updateNode (state, node) {
       state.node = node
@@ -126,6 +130,10 @@ export default new Vuex.Store({
     selectNode (context, node) {
       node['status'] = true
       context.commit('updateNode', node)
+    },
+    closeConnection(context) {
+      context.commit('cleanUpNode')
+      context.commit('cleanUpConnection')
     }
   }
 })
