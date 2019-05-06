@@ -4,7 +4,7 @@
       <v-toolbar>
         <v-toolbar-title>Connection</v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="dialog = false">
+        <v-btn icon @click="closeDialog">
           <v-icon>close</v-icon>
         </v-btn>
       </v-toolbar>
@@ -15,7 +15,7 @@
         <v-divider vertical></v-divider>
         <v-flex xs6>
           <v-subheader>New Connection</v-subheader>
-          <connection-form></connection-form>
+          <connection-form ref="connectionForm"></connection-form>
         </v-flex>
         <cx-loading :loading="loading"></cx-loading>
       </v-layout>
@@ -42,6 +42,10 @@
     methods: {
       openDialog () {
         this.dialog = true
+      },
+      closeDialog () {
+        this.$refs['connectionForm'].resetForm()
+        this.dialog = false
       }
     }
   }

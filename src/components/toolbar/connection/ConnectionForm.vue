@@ -86,6 +86,9 @@
           this.$store.dispatch('sendMsg', { msg })
           this.loading = false
         })
+      },
+      resetForm () {
+        this.$refs.form.reset()
       }
     }
   }
