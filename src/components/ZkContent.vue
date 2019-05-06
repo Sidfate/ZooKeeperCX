@@ -11,8 +11,8 @@
 </template>
 
 <script>
-  import {mapState} from 'vuex'
-  import {IntroView, NodeContent} from './content'
+  import { mapState } from 'vuex'
+  import { IntroView, NodeContent } from './content'
 
   export default {
     computed: {

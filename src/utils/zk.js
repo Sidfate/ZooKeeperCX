@@ -54,8 +54,41 @@ function getData(client, path) {
   })
 }
 
+function getAcl(client, path) {
+  return new Promise((resolve, reject) => {
+    if(!client) {
+      return
+    }
+
+    client.getACL(path, function (error, acls) {
+      if (error) {
+        reject(error)
+      }
+
+      resolve(acls)
+    });
+  })
+}
+
+function createNode(client, path, data, acl) {
+  return new Promise((resolve, reject) => {
+    if(!client) {
+      return
+    }
+
+    client.getACL(path, function (error, acls) {
+      if (error) {
+        reject(error)
+      }
+
+      resolve(acls)
+    });
+  })
+}
+
 export {
   connect,
   getChildren,
-  getData
+  getData,
+  getAcl
 }
