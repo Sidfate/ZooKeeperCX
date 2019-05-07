@@ -4,7 +4,7 @@
             text-xs-center
             wrap
     >
-      <intro-view v-if="!node.status"></intro-view>
+      <intro-view v-if="!node.path"></intro-view>
       <node-content v-else></node-content>
     </v-layout>
   </v-container>

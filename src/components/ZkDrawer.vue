@@ -44,6 +44,9 @@
     watch: {
       '$store.state.connection.handler': {
         handler: function(newer, older) {
+          console.log('handler changed')
+          console.log(this.active)
+          console.log(this.open)
           if(!older && newer) {
             this.refreshChildren('/')
           }
@@ -54,9 +57,7 @@
       },
       active () {
         if(this.active.length < 1) return
-
-        const selected = this.active[0]
-        console.log(selected)
+        const selected = Object.assign({}, this.active[0])
         this.$store.dispatch('selectNode', selected)
       }
     },

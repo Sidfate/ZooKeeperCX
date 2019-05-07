@@ -52,7 +52,7 @@
           {
             name: 'Website',
             icon: 'mdi-web',
-            link: 'https://github.com/Sidfate/ZooKeeperCX'
+            link: 'https://sidfate.github.io/ZooKeeperCX/'
           },
           {
             name: 'Github',

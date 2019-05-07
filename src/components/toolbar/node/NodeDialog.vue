@@ -39,9 +39,14 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+  import { createNode } from '@/utils/zk'
 
   export default {
     name: "NodeDialog",
+    computed: {
+      ...mapState(['connection'])
+    },
     data () {
       return {
         dialog: false,
@@ -64,7 +69,10 @@
         this.dialog = true
       },
       createNode () {
-
+        createNode(this.connection.handler, this.form).then((path) => {
+          this.dialog = false
+          this.$store.dispatch('sendMsg', { msg: `Create Node Successful In ${path}` })
+        })
       }
     }
   }

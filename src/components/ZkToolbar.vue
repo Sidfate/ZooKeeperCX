@@ -30,6 +30,14 @@
       </v-tooltip>
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="freshConnection" small>
+            <v-icon>refresh</v-icon>
+          </v-btn>
+        </template>
+        <span>Refresh Connection</span>
+      </v-tooltip>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="closeConnection" small>
             <v-icon>exit_to_app</v-icon>
           </v-btn>
@@ -97,6 +105,12 @@
         }).catch(() => {
           this.$store.dispatch('sendMsg', {msg: 'Connection failed', isError: true})
         })
+      },
+      freshConnection() {
+        const current = Object.assign({}, this.connection)
+        console.log(current)
+        this.$store.dispatch('closeConnection')
+        this.connect(current)
       },
       cleanStore() {
         cleanStore()

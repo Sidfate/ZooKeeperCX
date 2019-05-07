@@ -70,6 +70,7 @@ export default new Vuex.Store({
     cleanUpNode (state) {
       state.node.status = false
       state.node.path = ''
+      state.node.name = ''
     },
     updateNode (state, node) {
       state.node = node
@@ -134,6 +135,9 @@ export default new Vuex.Store({
     closeConnection(context) {
       context.commit('cleanUpNode')
       context.commit('cleanUpConnection')
+    },
+    closeNode(context) {
+      context.commit('cleanUpNode')
     }
   }
 })

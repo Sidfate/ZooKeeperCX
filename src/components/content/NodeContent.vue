@@ -23,14 +23,17 @@
                 v-if="!loading"
         >
           <div v-if="!loading">
-            <template v-if="JSON.stringify(content) !== '{}'">
-              <template v-for="(item, key, index) in content" >
+            <template v-if="typeof content === 'object' && JSON.stringify(content) !== '{}'">
+              <template v-for="(item, key, index) in content">
                 <v-layout row wrap :key="key">
-                  <v-flex tag="strong" xs4 class="node-content-text">{{ key }}</v-flex>
-                  <v-flex xs8 class="node-content-text">{{ item }}</v-flex>
+                  <v-flex :key="`key-${key}`" tag="strong" xs4 class="node-content-text">{{ key }}</v-flex>
+                  <v-flex :key="`value-${key}`" xs8 class="node-content-text">{{ item }}</v-flex>
                 </v-layout>
                 <v-divider v-if="index !== Object.keys(content).length - 1" :key="key"></v-divider>
               </template>
+            </template>
+            <template v-else-if="typeof content === 'string' && content">
+              <span>{{ content }}</span>
             </template>
             <template v-else>
               <cx-empty-tip message="No data."></cx-empty-tip>
@@ -79,49 +82,73 @@
           <v-icon>close</v-icon>
         </v-btn>
       </template>
-      <v-btn
-              fab
-              dark
-              small
-              color="indigo"
-              @click="fetchData"
-      >
-        <v-icon>refresh</v-icon>
-      </v-btn>
-      <v-btn
-              fab
-              dark
-              small
-              color="green"
-      >
-        <v-icon>edit</v-icon>
-      </v-btn>
-      <v-btn
-              fab
-              dark
-              small
-              color="red"
-              @click="deleteNode"
-      >
-        <v-icon>delete</v-icon>
-      </v-btn>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn
+                  v-on="on"
+                  fab
+                  dark
+                  small
+                  color="red"
+                  @click="deleteNode"
+          >
+            <v-icon>delete</v-icon>
+          </v-btn>
+        </template>
+        <span>Delete Node</span>
+      </v-tooltip>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn
+                  v-on="on"
+                  fab
+                  dark
+                  small
+                  color="warning"
+                  @click="addAuth"
+          >
+            <v-icon>mdi-key-plus</v-icon>
+          </v-btn>
+        </template>
+        <span>Add Auth</span>
+      </v-tooltip>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn
+                  v-on="on"
+                  fab
+                  dark
+                  small
+                  color="green"
+          >
+            <v-icon>edit</v-icon>
+          </v-btn>
+        </template>
+        <span>Edit Node</span>
+      </v-tooltip>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn
+                  v-on="on"
+                  fab
+                  dark
+                  small
+                  color="indigo"
+                  @click="fetchData"
+          >
+            <v-icon>refresh</v-icon>
+          </v-btn>
+        </template>
+        <span>Refresh Node</span>
+      </v-tooltip>
     </v-speed-dial>
   </v-layout>
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import { getData, getAcl } from '@/utils/zk'
-  import { dateFormat } from '@/utils/date'
-
-  const PERMISSIONS = {
-    READ : 1,
-    WRITE : 2,
-    CREATE : 4,
-    DELETE : 8,
-    ADMIN : 16,
-    ALL : 31
-  };
+  import {mapState} from 'vuex'
+  import {getData, getAcl, zkClient, removeNode} from '@/utils/zk'
+  import {dateFormat} from '@/utils/date'
 
   export default {
     name: "NodeContent",
@@ -129,9 +156,12 @@
       ...mapState(['connection', 'node']),
       color () {
         switch (this.bottomNav) {
-          case 0: return 'blue-grey'
-          case 1: return 'teal'
-          case 2: return 'brown'
+          case 0:
+            return 'blue-grey'
+          case 1:
+            return 'teal'
+          case 2:
+            return 'brown'
         }
       }
     },
@@ -150,6 +180,8 @@
     watch: {
       '$store.state.node.path': {
         handler: function (newer, older) {
+          console.log('node changed')
+          console.log(this.node)
           if (older !== newer) {
             this.contentType = 'data'
             this.fetchData()
@@ -165,40 +197,40 @@
         this.loading = true
         console.log('getData')
         console.log(this.node.path)
-        let { data, stats } = await getData(this.connection.handler, this.node.path)
+        let {data, stats} = await getData(this.connection.handler, this.node.path)
 
         this.content = {}
-        if(data) {
-          data = data.toString('utf8')
-          this.nodeData = Object.assign({}, JSON.parse(data))
+        if (data) {
+          this.nodeData = this._formData(data)
         }
-        if(stats) {
+        if (stats) {
           stats = this._formatStats(stats)
           this.stats = Object.assign({}, stats)
         }
 
-        if(this.contentType === 'acls') {
+        if (this.contentType === 'acls') {
           this.showAcl()
-        } else if(this.contentType === 'stats') {
+        } else if (this.contentType === 'stats') {
           this.showStats()
-        }else {
+        } else {
           this.showData()
         }
         this.loading = false
       },
-      showData () {
+      showData() {
         this.contentType = 'data'
-        this.content = Object.assign({}, this.nodeData)
+        this.content = this.isJson(this.nodeData) ? Object.assign({}, JSON.parse(this.nodeData)) : this.nodeData
+        console.log(this.content)
       },
-      showStats () {
+      showStats() {
         this.contentType = 'stats'
         this.content = Object.assign({}, this.stats)
       },
-      async showAcl () {
+      async showAcl() {
         let acls = await getAcl(this.connection.handler, this.node.path)
         let acl = acls && acls.length > 0 ? acls[0] : null
-        if(acl) {
-          acl.permission = this.$tool.findKey(PERMISSIONS, function (o) {
+        if (acl) {
+          acl.permission = this.$tool.findKey(zkClient.Permission, function (o) {
             return o === acl.permission
           })
           acl.id = acl.id.scheme + ", " + acl.id.id
@@ -207,26 +239,31 @@
         this.contentType = 'acls'
         this.content = Object.assign({}, acl ? acl : {})
       },
-      deleteNode () {
+      deleteNode() {
         this.$store.dispatch('showModal', {
           description: `Are you sure to do delete the node?`,
           sureBtn: 'Sure',
           title: 'Warning',
           next: () => {
-            console.log('deleted')
+            removeNode(this.connection.handler, this.node.path).then(() => {
+              this.$store.dispatch('closeNode')
+            })
           }
         })
       },
-      _formatStats (stats) {
+      addAuth() {
+
+      },
+      _formatStats(stats) {
         let stats$1 = {}
 
         this.$tool.forIn(stats.specification, (value) => {
           let one = stats[value.name]
-          if(one instanceof Buffer) {
-            if(value.type === 'long') {
+          if (one instanceof Buffer) {
+            if (value.type === 'long') {
               one = one.toString('hex')
               one = '0x' + parseInt(one, 16).toString(16)
-            }else {
+            } else {
               one = one.toString('utf8')
               one = parseInt(one)
             }
@@ -239,8 +276,25 @@
         stats$1.mtime = this._formatTime(stats$1.mtime)
         return stats$1
       },
-      _formatTime (time) {
+      _formatTime(time) {
         return dateFormat(parseInt(time), 'yyyy-MM-dd h:m:s');
+      },
+      _formData(data) {
+        return data.toString('utf8')
+      },
+      isJson(str) {
+        if (typeof str == 'string') {
+          try {
+            const obj = JSON.parse(str)
+            if (typeof obj == 'object' && obj) {
+              return true
+            } else {
+              return false
+            }
+          } catch (e) {
+            return false
+          }
+        }
       }
     }
   }
@@ -248,8 +302,9 @@
 
 <style scoped>
   .node-content-text {
-    word-wrap:break-word;
+    word-wrap: break-word;
   }
+
   .v-speed-dial {
     position: absolute;
     bottom: 66px;

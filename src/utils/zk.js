@@ -70,26 +70,48 @@ function getAcl(client, path) {
   })
 }
 
-function createNode(client, path, data, acl, createModel) {
+function createNode(client, { path, data, acls, createModel }) {
+  return new Promise((resolve, reject) => {
+    if(!client) {
+      return
+    }
+    if(typeof data !== 'undefined' && data !== null) {
+      data = new Buffer(data)
+    }
+
+    client.create(path, data, acls, createModel, function (error, path) {
+      if (error) {
+        reject(error)
+      }
+
+      resolve(path)
+    });
+  })
+}
+
+function removeNode(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
       return
     }
 
-    client.create(path, data, acl, createModel, function (error, acls) {
+    client.remove(path, -1, function (error) {
       if (error) {
         reject(error)
       }
 
-      resolve(acls)
+      console.log(path + ' Node is deleted.');
+      resolve()
     });
   })
 }
 
 export {
+  zkClient,
   connect,
   getChildren,
   getData,
   getAcl,
-  createNode
+  createNode,
+  removeNode
 }
