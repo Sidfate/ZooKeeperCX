@@ -1,5 +1,5 @@
 {
-  "name": "zkcx",
+  "name": "ZooKeeperCX",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,21 +9,27 @@
     "electron:build": "vue-cli-service electron:build",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "electron:generate-icons": "electron-icon-builder --input=./public/icons/icon.png --output=build --flatten"
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "electron-store": "^3.2.0",
     "lodash": "^4.17.11",
+    "node-zookeeper-client": "^0.2.3",
     "vue": "^2.6.10",
+    "vue-letter-avatar": "^0.1.6",
     "vuetify": "^1.5.5",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@mdi/font": "^3.6.95",
     "@vue/cli-plugin-babel": "^3.6.0",
     "@vue/cli-plugin-eslint": "^3.6.0",
     "@vue/cli-service": "^3.6.0",
     "babel-eslint": "^10.0.1",
     "electron": "^4.0.0",
+    "electron-icon-builder": "^1.0.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "stylus": "^0.54.5",
