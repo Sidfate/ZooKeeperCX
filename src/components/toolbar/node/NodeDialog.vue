@@ -6,32 +6,42 @@
       </v-card-title>
       <v-card-text>
         <v-container grid-list-md>
-          <v-layout wrap>
-            <v-flex xs12 >
-              <v-text-field label="Path" required v-model="form.path"></v-text-field>
-            </v-flex>
-            <v-flex xs12>
-              <v-textarea
-                      rows="1"
-                      label="Value"
-                      auto-grow
-                      v-model="form.data"
-              ></v-textarea>
-            </v-flex>
-            <v-flex xs12 sm6>
-              <v-select
-                      :items="createModels"
-                      label="CreateModel"
-                      required
-                      v-model="form.createModel"
-              ></v-select>
-            </v-flex>
-          </v-layout>
+          <v-form
+                  ref="form"
+                  lazy-validation
+          >
+            <v-layout wrap>
+              <v-flex xs12>
+                <v-text-field
+                        label="Path"
+                        required
+                        v-model="form.path"
+                        :rules="rules.path"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12>
+                <v-textarea
+                        rows="1"
+                        label="Value"
+                        auto-grow
+                        v-model="form.data"
+                ></v-textarea>
+              </v-flex>
+              <v-flex xs12 sm6>
+                <v-select
+                        :items="createModels"
+                        label="CreateModel"
+                        required
+                        v-model="form.createModel"
+                ></v-select>
+              </v-flex>
+            </v-layout>
+          </v-form>
         </v-container>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="warning darken-1" flat @click="dialog = false">Close</v-btn>
+        <v-btn color="warning darken-1" flat @click="closeDialog">Close</v-btn>
         <v-btn color="green darken-1" flat @click="createNode">Save</v-btn>
       </v-card-actions>
     </v-card>
@@ -40,39 +50,52 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { createNode } from '@/utils/zk'
+  import { createNode, zkClient, checkPath } from '@/utils/zk'
 
   export default {
     name: "NodeDialog",
     computed: {
       ...mapState(['connection'])
     },
-    data () {
+    data() {
       return {
         dialog: false,
         form: {
           path: '',
           data: '',
           acl: '',
-          createModel: 'Persistent',
+          createModel: 'PERSISTENT',
         },
-        createModels: [
-          'Persistent',
-          'Persistent Sequential',
-          'Ephemeral',
-          'Ephemeral Sequential'
-        ]
+        rules: {
+          path: [
+            v => !!v || 'Path is required',
+            v => checkPath(v) || 'Path is invalid, valid example: /node1/node2'
+          ],
+          server: [
+            v => !!v || 'Server is required'
+          ]
+        },
+        createModels: Object.keys(zkClient.CreateMode)
       }
     },
     methods: {
-      openDialog () {
+      openDialog() {
         this.dialog = true
       },
-      createNode () {
-        createNode(this.connection.handler, this.form).then((path) => {
+      async createNode() {
+        await createNode(this.connection.handler, this.form).then((path) => {
           this.dialog = false
           this.$store.dispatch('sendMsg', { msg: `Create Node Successful In ${path}` })
+          this.$store.dispatch('connect', this.connection)
+        }).catch(e => {
+          this.$store.dispatch('sendMsg', { msg: e.message, isError: true })
         })
+
+      },
+      closeDialog() {
+        this.dialog = false
+        this.$refs.form.reset()
+        this.createModel = 'PERSISTENT'
       }
     }
   }

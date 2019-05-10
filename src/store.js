@@ -102,7 +102,7 @@ export default new Vuex.Store({
         connectionList: getConnectionList(),
         connectionMap: getConnectionMap()
       })
-      context.commit('updateConnection', connection)
+      // context.commit('updateConnection', connection)
     },
     deleteConnection(context, name) {
       deleteConnection(name)
@@ -121,7 +121,14 @@ export default new Vuex.Store({
       context.commit('cleanUpConnection')
     },
     connect (context, connection) {
+      context.commit('cleanUpNode')
       connection.status = true
+      connection.loading = true
+      context.commit('updateConnection', connection)
+    },
+    stopLoadingConnection (context) {
+      const connection = Object.assign({}, context.state.connection)
+      connection.loading = false
       context.commit('updateConnection', connection)
     },
     changeTheme (context, theme) {

@@ -1,6 +1,11 @@
 
 const zkClient = require('node-zookeeper-client')
 
+/**
+ * connect to zk server
+ * @param server
+ * @returns {Promise<any>}
+ */
 function connect(server) {
   return new Promise((resolve, reject) => {
     let change = false
@@ -21,6 +26,12 @@ function connect(server) {
   })
 }
 
+/**
+ * get children nodes
+ * @param client
+ * @param path
+ * @returns {Promise<any>}
+ */
 function getChildren(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -38,6 +49,12 @@ function getChildren(client, path) {
   })
 }
 
+/**
+ * get node data
+ * @param client
+ * @param path
+ * @returns {Promise<any>}
+ */
 function getData(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -54,6 +71,12 @@ function getData(client, path) {
   })
 }
 
+/**
+ * get node acl
+ * @param client
+ * @param path
+ * @returns {Promise<any>}
+ */
 function getAcl(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -70,6 +93,15 @@ function getAcl(client, path) {
   })
 }
 
+/**
+ * create a new node
+ * @param client
+ * @param path
+ * @param data
+ * @param acls
+ * @param createModel
+ * @returns {Promise<any>}
+ */
 function createNode(client, { path, data, acls, createModel }) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -89,6 +121,12 @@ function createNode(client, { path, data, acls, createModel }) {
   })
 }
 
+/**
+ * remove the node
+ * @param client
+ * @param path
+ * @returns {Promise<any>}
+ */
 function removeNode(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -106,6 +144,20 @@ function removeNode(client, path) {
   })
 }
 
+/**
+ * check if the path is valid
+ * @param path
+ * @returns {*|boolean}
+ */
+function checkPath (path) {
+  console.log(path)
+  let regex = new RegExp("^/([^/\\0]+(/)?)+$", "gi")
+  let matchArr = path.match(regex)
+  console.log(matchArr)
+
+  return matchArr && matchArr.length > 0
+}
+
 export {
   zkClient,
   connect,
@@ -113,5 +165,6 @@ export {
   getData,
   getAcl,
   createNode,
-  removeNode
+  removeNode,
+  checkPath
 }
