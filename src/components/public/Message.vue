@@ -9,7 +9,8 @@
             flat
             @click.stop="closeSnackbar"
     >
-      Close
+      <v-icon v-if="snackbar.isError">mdi-close</v-icon>
+      <v-icon v-else>mdi-check</v-icon>
     </v-btn>
   </v-snackbar>
 </template>
