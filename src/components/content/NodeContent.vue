@@ -9,7 +9,7 @@
               min-height="100%"
       >
         <v-card-text>
-          <h3 class="headline mb-2">
+          <h3 class="headline mb-2" style="word-wrap:break-word;">
             {{ node.name }}
           </h3>
         </v-card-text>
@@ -25,7 +25,7 @@
           <div v-if="!loading">
             <template v-if="typeof content === 'object' && JSON.stringify(content) !== '{}'">
               <template v-for="(item, key, index) in content">
-                <v-layout row wrap :key="key">
+                <v-layout row wrap>
                   <v-flex :key="`key-${key}`" tag="strong" xs4 class="node-content-text">{{ key }}</v-flex>
                   <v-flex :key="`value-${key}`" xs8 class="node-content-text">{{ item }}</v-flex>
                 </v-layout>
@@ -44,9 +44,7 @@
     </v-scroll-y-transition>
     <v-bottom-nav
             :active.sync="bottomNav"
-            :color="color"
             :value="true"
-            dark
             absolute
     >
       <v-btn flat @click="showData">
@@ -154,16 +152,16 @@
     name: "NodeContent",
     computed: {
       ...mapState(['connection', 'node']),
-      color () {
-        switch (this.bottomNav) {
-          case 0:
-            return 'blue-grey'
-          case 1:
-            return 'teal'
-          case 2:
-            return 'brown'
-        }
-      }
+      // color () {
+      //   switch (this.bottomNav) {
+      //     case 0:
+      //       return 'blue-grey'
+      //     case 1:
+      //       return 'teal'
+      //     case 2:
+      //       return 'brown'
+      //   }
+      // }
     },
     data() {
       return {
@@ -184,6 +182,7 @@
           console.log(this.node)
           if (older !== newer) {
             this.contentType = 'data'
+            this.bottomNav = 0
             this.fetchData()
           }
         }
@@ -241,12 +240,12 @@
       },
       deleteNode() {
         this.$store.dispatch('showModal', {
-          description: `Are you sure to do delete the node?`,
+          description: `Are you sure to do delete the node(include its children nodes)?`,
           sureBtn: 'Sure',
           title: 'Warning',
           next: () => {
             removeNode(this.connection.handler, this.node.path).then(() => {
-              this.$store.dispatch('closeNode')
+              this.$store.dispatch('connect', this.connection)
             })
           }
         })

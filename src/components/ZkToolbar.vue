@@ -99,7 +99,7 @@
           item.handler = client
           this.$store.dispatch('connect', item)
 
-          client.on('disconnected', function () {
+          client.on('disconnected', () => {
             this.$store.dispatch('closeConnection')
           })
         }).catch(() => {
@@ -108,7 +108,6 @@
       },
       freshConnection() {
         const current = Object.assign({}, this.connection)
-        console.log(current)
         this.$store.dispatch('closeConnection')
         this.connect(current)
       },
