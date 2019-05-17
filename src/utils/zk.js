@@ -150,12 +150,34 @@ function removeNode(client, path) {
  * @returns {*|boolean}
  */
 function checkPath (path) {
-  console.log(path)
   let regex = new RegExp("^/([^/\\0]+(/)?)+$", "gi")
   let matchArr = path.match(regex)
-  console.log(matchArr)
 
   return matchArr && matchArr.length > 0
+}
+
+/**
+ * set node data content
+ * @param client
+ * @param path
+ * @param data
+ * @returns {Promise<any>}
+ */
+function setData(client, path, data) {
+  return new Promise((resolve, reject) => {
+    if(!client) {
+      return
+    }
+
+    const buffer = Buffer.from(data, 'utf8')
+    client.setData(path, buffer, -1,  function (error) {
+      if (error) {
+        reject(error)
+      }
+
+      resolve()
+    });
+  })
 }
 
 export {
@@ -165,6 +187,7 @@ export {
   getData,
   getAcl,
   createNode,
+  setData,
   removeNode,
   checkPath
 }
