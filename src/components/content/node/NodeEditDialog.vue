@@ -2,7 +2,7 @@
   <v-dialog v-model="dialog" persistent max-width="400px">
     <v-card>
       <v-card-title>
-        <span class="headline">Create Node</span>
+        <span class="headline">Edit Node</span>
       </v-card-title>
       <v-card-text>
         <v-container grid-list-md>
@@ -15,8 +15,8 @@
                 <v-text-field
                         label="Path"
                         required
-                        v-model="form.path"
-                        :rules="rules.path"
+                        disabled
+                        :value="path"
                 ></v-text-field>
               </v-flex>
               <v-flex xs12>
@@ -27,14 +27,6 @@
                         v-model="form.data"
                 ></v-textarea>
               </v-flex>
-              <v-flex xs12 sm6>
-                <v-select
-                        :items="createModels"
-                        label="CreateModel"
-                        required
-                        v-model="form.createModel"
-                ></v-select>
-              </v-flex>
             </v-layout>
           </v-form>
         </v-container>
@@ -42,7 +34,7 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="warning darken-1" flat @click="closeDialog">Close</v-btn>
-        <v-btn color="green darken-1" flat @click="createNode">Save</v-btn>
+        <v-btn color="green darken-1" flat @click="editNode">Save</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -50,52 +42,46 @@
 
 <script>
   import { mapState } from 'vuex'
-  import { createNode, zkClient, checkPath } from '@/utils/zk'
+  import { setData } from '@/utils/zk'
 
   export default {
-    name: "NodeDialog",
+    name: "NodeEditDialog",
+    props: {
+      data: String
+    },
     computed: {
-      ...mapState(['connection'])
+      ...mapState(['connection', 'node']),
+      path () {
+        return this.node.path
+      }
     },
     data() {
       return {
         dialog: false,
         form: {
-          path: '',
-          data: '',
-          acl: '',
-          createModel: 'PERSISTENT',
+          data: ''
         },
-        rules: {
-          path: [
-            v => !!v || 'Path is required',
-            v => checkPath(v) || 'Path is invalid, valid example: /node1/node2'
-          ],
-          server: [
-            v => !!v || 'Server is required'
-          ]
-        },
-        createModels: Object.keys(zkClient.CreateMode)
+        rules: {}
       }
     },
     methods: {
       openDialog() {
+        this.form.data = this.data
         this.dialog = true
       },
-      async createNode() {
-        await createNode(this.connection.handler, this.form).then((path) => {
+      async editNode() {
+        await setData(this.connection.handler, this.path, this.form.data).then(() => {
           this.dialog = false
-          this.$store.dispatch('sendMsg', { msg: `Create Node Successful In ${path}` })
-          this.$store.dispatch('connect', this.connection)
+          this.$store.dispatch('sendMsg', { msg: `Edit Node Successful In ${this.node.path}` })
+          this.$emit('edit-success')
         }).catch(e => {
           this.$store.dispatch('sendMsg', { msg: e.message, isError: true })
         })
 
       },
       closeDialog() {
+        // this.$refs.form.reset()
         this.dialog = false
-        this.$refs.form.reset()
-        this.createModel = 'PERSISTENT'
       }
     }
   }

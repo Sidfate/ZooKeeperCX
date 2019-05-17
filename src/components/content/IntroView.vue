@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width: 100%">
     <v-flex xs12>
       <v-img
               :src="require('@/assets/logo.png')"
@@ -11,10 +11,10 @@
 
     <v-flex mb-4>
       <h3 class="display-1 font-weight-bold mb-3">
-        Welcome to ZooKeeperCX
+        ZooKeeperCX
       </h3>
       <p class="subheading font-weight-regular">
-        A Cross-platform | Succinct | Smart GUI ZooKeeper Client Just For You.
+        <strong>Cross-platform</strong> |  <strong>Succinct</strong> | <strong>Smart</strong> ZooKeeper GUI Client
       </p>
     </v-flex>
     <v-flex

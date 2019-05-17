@@ -9,7 +9,7 @@
               min-height="100%"
       >
         <v-card-text>
-          <h3 class="headline mb-2">
+          <h3 class="headline mb-2" style="word-wrap:break-word;">
             {{ node.name }}
           </h3>
         </v-card-text>
@@ -25,7 +25,7 @@
           <div v-if="!loading">
             <template v-if="typeof content === 'object' && JSON.stringify(content) !== '{}'">
               <template v-for="(item, key, index) in content">
-                <v-layout row wrap :key="key">
+                <v-layout row wrap>
                   <v-flex :key="`key-${key}`" tag="strong" xs4 class="node-content-text">{{ key }}</v-flex>
                   <v-flex :key="`value-${key}`" xs8 class="node-content-text">{{ item }}</v-flex>
                 </v-layout>
@@ -44,9 +44,7 @@
     </v-scroll-y-transition>
     <v-bottom-nav
             :active.sync="bottomNav"
-            :color="color"
             :value="true"
-            dark
             absolute
     >
       <v-btn flat @click="showData">
@@ -64,84 +62,14 @@
         <v-icon>mdi-key</v-icon>
       </v-btn>
     </v-bottom-nav>
-    <v-speed-dial
-            v-model="fab"
-            bottom
-            right
-            direction="top"
-            transition="slide-y-reverse-transition"
-    >
-      <template v-slot:activator>
-        <v-btn
-                v-model="fab"
-                color="blue darken-2"
-                fab
-                dark
-        >
-          <v-icon>mdi-menu</v-icon>
-          <v-icon>close</v-icon>
-        </v-btn>
-      </template>
-      <v-tooltip left>
-        <template v-slot:activator="{ on }">
-          <v-btn
-                  v-on="on"
-                  fab
-                  dark
-                  small
-                  color="red"
-                  @click="deleteNode"
-          >
-            <v-icon>delete</v-icon>
-          </v-btn>
-        </template>
-        <span>Delete Node</span>
-      </v-tooltip>
-      <v-tooltip left>
-        <template v-slot:activator="{ on }">
-          <v-btn
-                  v-on="on"
-                  fab
-                  dark
-                  small
-                  color="warning"
-                  @click="addAuth"
-          >
-            <v-icon>mdi-key-plus</v-icon>
-          </v-btn>
-        </template>
-        <span>Add Auth</span>
-      </v-tooltip>
-      <v-tooltip left>
-        <template v-slot:activator="{ on }">
-          <v-btn
-                  v-on="on"
-                  fab
-                  dark
-                  small
-                  color="green"
-          >
-            <v-icon>edit</v-icon>
-          </v-btn>
-        </template>
-        <span>Edit Node</span>
-      </v-tooltip>
-      <v-tooltip left>
-        <template v-slot:activator="{ on }">
-          <v-btn
-                  v-on="on"
-                  fab
-                  dark
-                  small
-                  color="indigo"
-                  @click="fetchData"
-          >
-            <v-icon>refresh</v-icon>
-          </v-btn>
-        </template>
-        <span>Refresh Node</span>
-      </v-tooltip>
-    </v-speed-dial>
+    <operator-menu
+            @node-delete="deleteNode"
+            @node-refresh="fetchData"
+            @node-auth="addAuth"
+            @node-edit="openEditDialog"
+    ></operator-menu>
+
+    <node-edit-dialog ref="nodeEditDialog" :data="nodeData" @edit-success="fetchData"></node-edit-dialog>
   </v-layout>
 </template>
 
@@ -149,31 +77,27 @@
   import {mapState} from 'vuex'
   import {getData, getAcl, zkClient, removeNode} from '@/utils/zk'
   import {dateFormat} from '@/utils/date'
+  import {OperatorMenu, NodeEditDialog} from './node'
 
   export default {
     name: "NodeContent",
+    components: {
+      OperatorMenu,
+      NodeEditDialog
+    },
     computed: {
-      ...mapState(['connection', 'node']),
-      color () {
-        switch (this.bottomNav) {
-          case 0:
-            return 'blue-grey'
-          case 1:
-            return 'teal'
-          case 2:
-            return 'brown'
-        }
-      }
+      ...mapState(['connection', 'node'])
     },
     data() {
       return {
         fab: false,
         loading: false,
-        nodeData: {},
+        nodeData: '',
         stats: {},
         content: {},
         acls: {},
         bottomNav: 0,
+        rawData: '',
         contentType: 'data'
       }
     },
@@ -184,6 +108,7 @@
           console.log(this.node)
           if (older !== newer) {
             this.contentType = 'data'
+            this.bottomNav = 0
             this.fetchData()
           }
         }
@@ -239,14 +164,18 @@
         this.contentType = 'acls'
         this.content = Object.assign({}, acl ? acl : {})
       },
+      openEditDialog () {
+        this.$refs['nodeEditDialog'].openDialog()
+      },
       deleteNode() {
+        console.log(1111)
         this.$store.dispatch('showModal', {
-          description: `Are you sure to do delete the node?`,
+          description: 'Are you sure to do delete the node(include its children nodes)?',
           sureBtn: 'Sure',
           title: 'Warning',
           next: () => {
             removeNode(this.connection.handler, this.node.path).then(() => {
-              this.$store.dispatch('closeNode')
+              this.$store.dispatch('connect', this.connection)
             })
           }
         })

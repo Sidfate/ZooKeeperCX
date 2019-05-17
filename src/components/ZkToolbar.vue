@@ -3,7 +3,19 @@
     <v-menu offset-y>
       <template v-slot:activator="{ on }">
         <v-toolbar-title v-on="connectionList.length > 0 ? on:null" style="cursor: pointer" @click="showConnections">
-          <span>{{ connection['status'] ? connection.name : 'None' }}</span>
+          <span>
+            <template v-if="connection['status']">
+              {{ connection.name }}
+            </template>
+            <v-tooltip bottom v-else>
+              <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on" small>
+                  <v-icon>mdi-login-variant</v-icon>
+                </v-btn>
+              </template>
+              <span>Connect</span>
+            </v-tooltip>
+          </span>
           <v-icon>arrow_drop_down</v-icon>
         </v-toolbar-title>
       </template>
@@ -39,7 +51,7 @@
       <v-tooltip bottom>
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="closeConnection" small>
-            <v-icon>exit_to_app</v-icon>
+            <v-icon>mdi-logout-variant</v-icon>
           </v-btn>
         </template>
         <span>Close Connection</span>
@@ -99,7 +111,7 @@
           item.handler = client
           this.$store.dispatch('connect', item)
 
-          client.on('disconnected', function () {
+          client.on('disconnected', () => {
             this.$store.dispatch('closeConnection')
           })
         }).catch(() => {
@@ -108,7 +120,6 @@
       },
       freshConnection() {
         const current = Object.assign({}, this.connection)
-        console.log(current)
         this.$store.dispatch('closeConnection')
         this.connect(current)
       },

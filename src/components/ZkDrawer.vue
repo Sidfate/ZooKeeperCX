@@ -6,22 +6,11 @@
           app
           style="overflow-x: auto"
   >
-    <!-- 暂时不把连接的操作放在drawer中 -->
-    <!--<v-toolbar dense class="transparent">-->
-      <!--<v-tooltip bottom>-->
-        <!--<template v-slot:activator="{ on }">-->
-          <!--<v-btn icon v-on="on" small>-->
-            <!--<v-icon>add</v-icon>-->
-          <!--</v-btn>-->
-        <!--</template>-->
-        <!--<span>Create Node</span>-->
-      <!--</v-tooltip>-->
-    <!--</v-toolbar>-->
-    <!--<v-divider></v-divider>-->
     <cx-loading :loading="loading"></cx-loading>
     <v-treeview
-            :active.sync="active"
-            :open.sync="open"
+            :active.sync="activeNodes"
+            :open.sync="openNodes"
+            loading-icon="cached"
             :load-children="loadChildren"
             item-key="path"
             :items="items"
@@ -34,73 +23,96 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
-  import { getChildren, getData } from '@/utils/zk'
+  import {mapState} from 'vuex'
+  import {getChildren, getData} from '@/utils/zk'
 
   export default {
     computed: {
       ...mapState(['connection'])
     },
     watch: {
-      '$store.state.connection.handler': {
-        handler: function(newer, older) {
-          console.log('handler changed')
-          console.log(this.active)
-          console.log(this.open)
-          if(!older && newer) {
-            this.refreshChildren('/')
-          }
-          if(newer === null) {
+      '$store.state.connection.status': {
+        handler: function (newer, older) {
+          console.log('connection changed')
+          if (!newer && older) {
             this.items = []
+          }
+        },
+      },
+      '$store.state.connection.loading': {
+        handler: function (newer, older) {
+          console.log('reloading connection')
+          if (!older && newer) {
+            this.refreshChildren('/')
           }
         }
       },
-      active () {
-        if(this.active.length < 1) return
-        const selected = Object.assign({}, this.active[0])
-        this.$store.dispatch('selectNode', selected)
+      activeNodes () {
+        if (this.activeNodes.length < 1) return
+        this.selectedNode = Object.assign({}, this.activeNodes[0])
+      },
+      openNodes (newer, older) {
+        console.log('open changed')
+        console.log(newer)
+        console.log(older)
+        if(newer.length < older.length) {
+          this.selectedNode = Object.assign({}, older[older.length - 1])
+        }else {
+          this.selectedNode = Object.assign({}, newer[newer.length - 1])
+        }
+      },
+      selectedNode (newer, older) {
+        if(older === null || newer.path !== older.path) {
+          const selected = Object.assign({}, newer)
+          this.$store.dispatch('selectNode', selected)
+        }
       }
     },
-    data () {
+    data() {
       return {
         loading: false,
         items: [],
-        active: [],
-        open: []
+        activeNodes: [],
+        openNodes: [],
+        selectedNode: null
       }
     },
-    mounted () {
-      if(this.connection.handler) {
+    mounted() {
+      if (this.connection.status) {
         this.refreshChildren()
       }
     },
     methods: {
-      async refreshChildren () {
+      async refreshChildren() {
         this.loading = true
         this.items = []
         this.items = await this._getChildren('/')
+        this.openNodes = []
+        this.$store.dispatch('stopLoadingConnection')
         this.loading = false
       },
-      async loadChildren (item) {
+      async loadChildren(item) {
+        console.log('click tree node')
         item['children'] = await this._getChildren(item.path)
+        this.openNodes.push(item)
       },
-      async _getChildren (path) {
+      async _getChildren(path) {
         console.log(path)
         const children = await getChildren(this.connection.handler, path)
         const items = []
-        if(!children || children.length < 1) {
+        if (!children || children.length < 1) {
           return items;
         }
 
-        for(let i = 0; i < children.length; i++) {
+        for (let i = 0; i < children.length; i++) {
           let child = children[i]
-          const childPath = path === '/' ? path+child : path+'/'+child
-          const { data, stats } = await getData(this.connection.handler, childPath)
+          const childPath = path === '/' ? path + child : path + '/' + child
+          const {data, stats} = await getData(this.connection.handler, childPath)
           const item = {
             path: childPath,
             name: child
           }
-          if(stats.numChildren > 0) {
+          if (stats.numChildren > 0) {
             item['children'] = []
           }
           items.push(item)
@@ -113,5 +125,7 @@
 </script>
 
 <style>
-
+  .v-navigation-drawer__border {
+    display: none;
+  }
 </style>

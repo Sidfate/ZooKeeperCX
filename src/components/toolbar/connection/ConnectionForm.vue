@@ -44,7 +44,7 @@
 </template>
 
 <script>
-  import * as ZK from '@/utils/zk'
+  import { connect } from '@/utils/zk'
 
   export default {
     name: "ConnectionForm",
@@ -80,10 +80,12 @@
       async testConnection () {
         this.loading = true
         let msg = 'Test connection success'
-        ZK.connect(this.form.server).catch(() => {
+        let isError = false
+        connect(this.form.server).catch(() => {
           msg = 'Test connection failed'
+          isError = true
         }).finally(() => {
-          this.$store.dispatch('sendMsg', { msg })
+          this.$store.dispatch('sendMsg', { msg, isError })
           this.loading = false
         })
       },
