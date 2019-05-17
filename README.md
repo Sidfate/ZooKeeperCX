@@ -1,6 +1,6 @@
 # ZookeeperCX   [![996.icu](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu)
 
-![logo](https://sidfate.oss-cn-hangzhou.aliyuncs.com/client-x/zk-logo.png)
+![logo](https://sidfate.oss-cn-hangzhou.aliyuncs.com/client-x/zkcx/zk-logo.png)
 
 A **[cross-platform]** **[succinct]** **[smart]** ZooKeeper GUI Client.
 
