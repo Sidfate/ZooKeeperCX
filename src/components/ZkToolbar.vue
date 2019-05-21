@@ -2,14 +2,14 @@
   <v-toolbar app fixed clipped-left>
     <v-menu offset-y>
       <template v-slot:activator="{ on }">
-        <v-toolbar-title v-on="connectionList.length > 0 ? on:null" style="cursor: pointer" @click="showConnections">
+        <v-toolbar-title v-on="connectionList.length > 0 ? on:null" style="cursor: pointer" >
           <span>
             <template v-if="connection['status']">
               {{ connection.name }}
             </template>
             <v-tooltip bottom v-else>
               <template v-slot:activator="{ on }">
-                <v-btn icon v-on="on" small>
+                <v-btn icon v-on="on" small @click="showConnections">
                   <v-icon>mdi-login-variant</v-icon>
                 </v-btn>
               </template>

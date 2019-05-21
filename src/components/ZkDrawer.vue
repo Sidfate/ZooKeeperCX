@@ -4,7 +4,7 @@
           clipped
           fixed
           app
-          style="overflow-x: auto"
+          class="zk-drawer"
   >
     <cx-loading :loading="loading"></cx-loading>
     <v-treeview
@@ -127,5 +127,20 @@
 <style>
   .v-navigation-drawer__border {
     display: none;
+  }
+  .zk-drawer {
+    overflow-x: auto;
+  }
+  .zk-drawer::-webkit-scrollbar{
+    width: 4px;
+    height: 4px;
+  }
+  .zk-drawer::-webkit-scrollbar-thumb{
+    border-radius: 1em;
+    background-color: rgba(50,50,50,.3);
+  }
+  .zk-drawer::-webkit-scrollbar-track{
+    border-radius: 1em;
+    background-color: rgba(50,50,50,.1);
   }
 </style>
