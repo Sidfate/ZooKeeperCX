@@ -6,6 +6,8 @@ A **[cross-platform]** **[succinct]** **[smart]** ZooKeeper GUI Client.
 
 Created by vue+electron.See my development framework template :point_right: [Click Me](https://github.com/Sidfate/vuetify-electron-template)
 
+See more about [Client-X-Series](https://clientx.dev/)
+
 ### Download
 
 [Link](https://github.com/Sidfate/zkcx/releases)
