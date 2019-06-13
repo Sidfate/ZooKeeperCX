@@ -1,6 +1,6 @@
 {
   "name": "ZooKeeperCX",
-  "version": "0.1.9",
+  "version": "0.2.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
