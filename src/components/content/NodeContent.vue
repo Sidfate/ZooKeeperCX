@@ -1,7 +1,23 @@
 <template>
   <v-layout text-xs-center fill-height>
     <div style="width: 100%">
-      <v-breadcrumbs :items="navs" divider="/" style="padding: 0 0 16px 0;"></v-breadcrumbs>
+      <div style="display: flex;margin-bottom: 10px">
+        <v-breadcrumbs
+                :items="navs" divider="/"
+                style="padding: 5px 0 5px 0;"
+        >
+        </v-breadcrumbs>
+        <div style="flex: 1 1 auto;text-align: left;">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-btn flat icon small v-on="on" @click="copyPath">
+                <v-icon>mdi-content-copy</v-icon>
+              </v-btn>
+            </template>
+            <span>Copy path</span>
+          </v-tooltip>
+        </div>
+      </div>
       <v-scroll-y-transition mode="out-in">
       <v-card
               :key="node.path"
@@ -246,6 +262,13 @@
           })
         }
         this.navs = navs
+      },
+      copyPath() {
+        this.$copyText(this.node.path).then(res => {
+          this.$store.dispatch('sendMsg', {msg: 'Cpoy Success!'})
+        }, e => {
+          this.$store.dispatch('sendMsg', {msg: 'Copy Failed!', isError: true})
+        })
       }
     }
   }
@@ -264,5 +287,11 @@
 
   .v-btn--floating {
     position: relative;
+  }
+  .v-icon {
+    font-size: 18px;
+  }
+  .v-btn .v-btn__content .v-icon {
+    color: rgba(0,0,0,0.54);
   }
 </style>
