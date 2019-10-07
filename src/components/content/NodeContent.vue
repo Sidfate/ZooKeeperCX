@@ -1,6 +1,8 @@
 <template>
   <v-layout text-xs-center fill-height>
-    <v-scroll-y-transition mode="out-in">
+    <div style="width: 100%">
+      <v-breadcrumbs :items="navs" divider="/" style="padding: 0 0 16px 0;"></v-breadcrumbs>
+      <v-scroll-y-transition mode="out-in">
       <v-card
               :key="node.path"
               class="mx-auto"
@@ -10,7 +12,7 @@
       >
         <v-card-text>
           <h3 class="headline mb-2" style="word-wrap:break-word;">
-            {{ node.name }}
+            {{ this.$tool.truncate(node.name, {'length': 30}) }}
           </h3>
         </v-card-text>
         <v-divider></v-divider>
@@ -42,6 +44,7 @@
         </v-container>
       </v-card>
     </v-scroll-y-transition>
+    </div>
     <v-bottom-nav
             :active.sync="bottomNav"
             :value="true"
@@ -90,6 +93,7 @@
     },
     data() {
       return {
+        navs: [],
         fab: false,
         loading: false,
         nodeData: '',
@@ -122,6 +126,7 @@
         this.loading = true
         console.log('getData')
         console.log(this.node.path)
+        this.generateNavs(this.node.path)
         let {data, stats} = await getData(this.connection.handler, this.node.path)
 
         this.content = {}
@@ -224,6 +229,23 @@
             return false
           }
         }
+      },
+      generateNavs(path) {
+        const pathArr = path.split('/')
+        let navs = []
+        if(pathArr.length > 0) {
+          pathArr.forEach(nav => {
+            if(nav) {
+              navs.push({
+                text: this.$tool.truncate(nav, {
+                  'length': 30
+                }),
+                disabled: true
+              })
+            }
+          })
+        }
+        this.navs = navs
       }
     }
   }
