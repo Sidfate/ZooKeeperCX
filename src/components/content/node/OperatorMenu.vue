@@ -2,6 +2,7 @@
   <v-speed-dial
           v-model="fab"
           bottom
+          small
           right
           direction="top"
           transition="slide-y-reverse-transition"
@@ -23,7 +24,6 @@
                 v-on="on"
                 fab
                 dark
-                small
                 color="red"
                 @click="deleteNode"
         >
@@ -32,21 +32,6 @@
       </template>
       <span>Delete Node</span>
     </v-tooltip>
-    <!--<v-tooltip left>-->
-      <!--<template v-slot:activator="{ on }">-->
-        <!--<v-btn-->
-                <!--v-on="on"-->
-                <!--fab-->
-                <!--dark-->
-                <!--small-->
-                <!--color="warning"-->
-                <!--@click="changeAuth"-->
-        <!--&gt;-->
-          <!--<v-icon>mdi-key-plus</v-icon>-->
-        <!--</v-btn>-->
-      <!--</template>-->
-      <!--<span>Add Auth</span>-->
-    <!--</v-tooltip>-->
     <v-tooltip left>
       <template v-slot:activator="{ on }">
         <v-btn
@@ -81,13 +66,9 @@
 </template>
 
 <script>
-  import NodeEditDialog from './NodeEditDialog'
 
   export default {
     name: "OperatorMenu",
-    components: {
-      NodeEditDialog
-    },
     data () {
       return {
         fab: false,
@@ -112,5 +93,9 @@
 </script>
 
 <style scoped>
-
+  .v-btn--floating {
+    width: 48px;
+    height: 48px;
+    box-shadow: none;
+  }
 </style>
