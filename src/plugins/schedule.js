@@ -2,7 +2,7 @@ const schedule = require('node-schedule');
 const api = require('@/apis/checkUpdate');
 const { shell, remote } = require('electron');
 
-const checkUpdateJob = schedule.scheduleJob('* * */12 * * *', function(){
+const checkCallback = () => {
   console.log('first time')
   api.checkUpdate()
     .then(function (response) {
@@ -29,4 +29,6 @@ const checkUpdateJob = schedule.scheduleJob('* * */12 * * *', function(){
     })
     .finally(function () {
     });
-});
+}
+schedule.scheduleJob('* * */6 * * *', checkCallback());
+checkCallback();
