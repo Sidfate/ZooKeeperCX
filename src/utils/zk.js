@@ -55,6 +55,33 @@ function getChildren(client, path) {
  * @param path
  * @returns {Promise<any>}
  */
+function exists(client, path) {
+  return new Promise((resolve, reject) => {
+    if(!client) {
+      return
+    }
+
+    client.exists(path, (error, stats) => {
+      if(error) {
+        reject(error)
+      }
+
+      if (stats) {
+        resolve({ data: true, stats })
+      } else {
+        reject(error)
+      }
+
+    })
+  })
+}
+
+/**
+ * get node data
+ * @param client
+ * @param path
+ * @returns {Promise<any>}
+ */
 function getData(client, path) {
   return new Promise((resolve, reject) => {
     if(!client) {
@@ -185,6 +212,7 @@ export {
   connect,
   getChildren,
   getData,
+  exists,
   getAcl,
   createNode,
   setData,

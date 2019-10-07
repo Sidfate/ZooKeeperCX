@@ -56,8 +56,17 @@
         </template>
         <span>Close Connection</span>
       </v-tooltip>
+      <v-text-field
+              flat
+              solo-inverted
+              hide-details
+              prepend-inner-icon="search"
+              label="Search"
+              clearable
+              @keyup.enter="searchNode"
+              v-model="search"
+      ></v-text-field>
     </template>
-
     <v-spacer></v-spacer>
 
     <v-tooltip bottom>
@@ -100,7 +109,9 @@
       ...mapState(['connection', 'connectionList'])
     },
     data() {
-      return {}
+      return {
+        search: ''
+      }
     },
     methods: {
       openDialog(ref) {
@@ -136,11 +147,34 @@
       closeConnection() {
         this.connection.handler.close()
         this.$store.dispatch('closeConnection')
+      },
+      searchNode() {
+        const search = this.$tool.trim(this.search)
+        if(!search) {
+          return
+        }
+
+        if(!ZK.checkPath(search)) {
+          this.$store.dispatch('sendMsg', {msg: 'Invalid Search Path!', isError: true})
+          return
+        }
+        const name = this.$tool.last(search.split('/'))
+        ZK.exists(this.connection.handler, search).then(res => {
+          const selected = {
+            path: search,
+            name
+          }
+          this.$store.dispatch('selectNode', selected)
+        }).catch(error => {
+          this.$store.dispatch('sendMsg', {msg: 'No Search Result!', isError: true})
+        })
       }
     }
   }
 </script>
 
 <style>
-
+  .v-text-field.v-text-field--solo .v-input__control {
+    min-height: 35px;
+  }
 </style>
