@@ -98,4 +98,12 @@
     height: 48px;
     box-shadow: none;
   }
+  .v-speed-dial__list .v-btn--floating {
+    width: 36px;
+    height: 36px;
+    box-shadow: none;
+  }
+  .v-icon {
+    font-size: 18px;
+  }
 </style>
