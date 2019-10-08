@@ -30,5 +30,5 @@ const checkCallback = () => {
     .finally(function () {
     });
 }
-schedule.scheduleJob('* * */6 * * *', checkCallback());
+schedule.scheduleJob('* * */2 * * *', checkCallback());
 checkCallback();
